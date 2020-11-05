@@ -7,7 +7,6 @@ public class Portal : MonoBehaviour
     //Start() Variables
     private Rigidbody2D rb;
     private Collider2D coll;
-    public Collider2D player;
     public Rigidbody2D playerRb;
     
     [SerializeField]public Vector3 teleportLocation;
@@ -27,10 +26,6 @@ public class Portal : MonoBehaviour
 
         }
     }
-
-
-
-
 }
 
 
