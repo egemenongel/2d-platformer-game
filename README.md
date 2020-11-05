@@ -14,3 +14,5 @@
 - More animations
 - More background elements
 - Story
+
+Planning to create a Portal alike 3D or 2D game. It can be interesting to create mechanics about bullets.
