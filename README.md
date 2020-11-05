@@ -15,6 +15,7 @@
 - More animations
 - More background elements
 - Story
+
 // Current Bugs //
 
 - Health decreases 2 times sometimes.
