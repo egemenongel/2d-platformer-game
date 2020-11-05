@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
 using UnityEngine;
@@ -10,8 +10,6 @@ public class Platform : MonoBehaviour
 
     [SerializeField] private float leftCap;
     [SerializeField] private float rightCap;
-    [SerializeField] private LayerMask ground;
-    [SerializeField] private bool trigger;
     private void Start()
     {
         coll = GetComponent<BoxCollider2D>();
@@ -31,20 +29,3 @@ public class Platform : MonoBehaviour
             rb.velocity = new Vector2(-2, 0);
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-}
-        
-
-
-
-
