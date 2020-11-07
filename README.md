@@ -19,7 +19,7 @@
 // Current Bugs //
 
 - Health decreases 2 times sometimes.
-- Collider of cherries, count more than once sometimes.
+- Collider of cherries, count more than once sometimes. REASON: There are actually 2 colliders on the player.
 
 
 Planning to create a Portal alike 3D or 2D game. It can be interesting to create mechanics about bullets.
