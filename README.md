@@ -5,7 +5,7 @@
 2D Platformer Game GOALS:
 
 - Cleaning the code
-- Menu - UI
+- ~~Menu - UI~~ ✓
 - Hidden Room
 - Powerups (Star in Mario, weapons from Mega Man)
 - Maybe vehicles
