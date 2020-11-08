@@ -2,7 +2,7 @@
 
 --- My Unity codes will be here ---
 
-2D Platformer Game GOALS:
+**2D Platformer Game GOALS**:
 
 - Cleaning the code
 - ~~Menu - UI~~ ✓
