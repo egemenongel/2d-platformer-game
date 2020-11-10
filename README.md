@@ -18,7 +18,7 @@
 
 // Current Bugs //
 
-- Health decreases 2 times sometimes.
+- ~~Health decreases 2 times sometimes.~~
 - ~~Collider of cherries, count more than once sometimes. REASON: There are actually 2 colliders on the player.~~ SOLVED
 
 
