@@ -6,6 +6,7 @@
 
 - ~~Cleaning the code~~
 - ~~Menu - UI~~ ✓
+- Movin Platform with a trap
 - Hidden Room
 - Powerups (Star in Mario, weapons from Mega Man)
 - Maybe vehicles
