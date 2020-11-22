@@ -7,7 +7,7 @@
 - ~~Cleaning the code~~
 - ~~Menu - UI~~ ✓
 - Level Select Menu
-- When falling from a high place, change to the falling state.
+- ~~When falling from a high place, change to the falling state.~~
 - 3 Star System
 - Moving Platform with a trap
 - Hidden Room
