@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,32 +10,32 @@ using UnityEditor.VersionControl;
 public class PlayerController : MonoBehaviour
 {
     //Start() Variables
-    public Rigidbody2D rb;
+    [HideInInspector] public Rigidbody2D rb;
     private Animator anim;
-    private CircleCollider2D circleColl;
-    public BoxCollider2D boxColl;
-    //FSM
-    private enum State { idle, running, jumping, falling, crouching, hurt, climbing }
-    private State state = State.idle;
+    [HideInInspector] public CircleCollider2D circleColl;
+    [HideInInspector] public BoxCollider2D boxColl;
+
+    //Finite State Machine
+    public enum State { idle, running, jumping, falling, crouching, hurt, climbing }
+    public State playerState = State.idle;
     //Inspector Variables
     [SerializeField] private LayerMask ladder;
     [SerializeField] private LayerMask ground;
 
+    [SerializeField] public float jumpForce = 11f;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpForce = 16f;
-    [SerializeField] private float crouchForce = -10f;
-    [SerializeField] private float hurtForce = 10f;
-    [SerializeField] private float climbHorizontal = .5f;
-    [SerializeField] private float climbVertical;
 
     [SerializeField] private AudioSource footsteps;
     [SerializeField] private AudioSource jumpSound;
-    [SerializeField] private AudioSource collect;
+    [SerializeField] public AudioSource collect;
     [SerializeField] private AudioSource backgroundMusic;
-    [SerializeField] private bool trigger;
-    [SerializeField] private bool deathTrigger=false;
-    [SerializeField] private Vector3 transportLocation;
+    [SerializeField] private AudioSource hit;
+    [SerializeField] private bool deathTrigger = false;
+    [SerializeField] public bool invincibleTrigger = false;
 
+    [HideInInspector] private float climbHorizontal = .5f;
+    [HideInInspector] private float climbVertical = 3f;
+    [HideInInspector] private float crouchForce = -8f;
 
     private void Start()
     {
@@ -44,28 +44,30 @@ public class PlayerController : MonoBehaviour
         circleColl = GetComponent<CircleCollider2D>();
         boxColl = GetComponent<BoxCollider2D>();
         circleColl.isTrigger = false;
+        invincibleTrigger = false;
         PermanentUI.perm.healthCounterText.text = PermanentUI.perm.health.ToString();
-
+        PermanentUI.perm.levelText.text = "L - " + PermanentUI.perm.levelCounter.ToString();
 
     }
 
     private void Update()
 
     {
-        if (state != State.hurt)
-        {
+        if (playerState != State.hurt)
+       {
             Movement();
         }
 
         AnimationState();
-        anim.SetInteger("state", (int)state);
+        anim.SetInteger("state", (int)playerState);
+
     }
     
     private void Movement()
     {
         float hDirection = Input.GetAxis("Horizontal");
         //Moving Left
-        if (hDirection < 0 && state != State.climbing)
+        if (hDirection < 0 && playerState != State.climbing)
 
         {
             rb.velocity = new Vector2(-speed, rb.velocity.y);
@@ -73,45 +75,33 @@ public class PlayerController : MonoBehaviour
         }
 
         //MovingRight
-        else if (hDirection > 0 && state != State.climbing)
+        else if (hDirection > 0 && playerState != State.climbing)
         {
             rb.velocity = new Vector2(speed, rb.velocity.y);
             transform.localScale = new Vector2(1, 1);
         }
 
         //Jumping
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && playerState != State.crouching)
         {
             RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.down, 1.3f, ground);
             if (hit.collider != null || boxColl.IsTouchingLayers(ladder))
-                Jump();
+            {
+                playerJump();
+            }
+                
         }
 
         float vDirection = Input.GetAxis("Vertical");
 
         //Crouching
-        if (vDirection < 0 && boxColl.IsTouchingLayers(ground) && state != State.falling && state != State.climbing)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, crouchForce);
-            circleColl.isTrigger = true;
-        }
-        
-        else if(boxColl.IsTouchingLayers(ground) && circleColl.IsTouchingLayers(ground) && state == State.crouching)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, crouchForce);
-            circleColl.isTrigger = true;
-        }
-
-        else
-        {
-            circleColl.isTrigger = false;
-        }
+        Crouch(vDirection);
 
         //Climbing
-        if (vDirection > 0 && boxColl.IsTouchingLayers(ladder) && state != State.hurt)
+        if (vDirection > 0 && boxColl.IsTouchingLayers(ladder))
         {
             rb.velocity = new Vector2(rb.velocity.x, climbVertical);
-            state = State.climbing;
+            playerState = State.climbing;
 
             if (hDirection > .1f && boxColl.IsTouchingLayers(ladder))
             {
@@ -123,10 +113,10 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (vDirection < 0 && boxColl.IsTouchingLayers(ladder) && state != State.hurt)
+        else if (vDirection < 0 && boxColl.IsTouchingLayers(ladder))
         {
             rb.velocity = new Vector2(rb.velocity.x, -climbVertical);
-            state = State.climbing;
+            playerState = State.climbing;
 
             if (hDirection > .1f)
             {
@@ -146,174 +136,71 @@ public class PlayerController : MonoBehaviour
         }
 
     }
-    private void Crouch()
-    {
-        state = State.crouching;
-    }
-    private void Jump()
+
+    public void playerJump()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        state = State.jumping;
+        playerState = State.jumping;
         jumpSound.Play();
 
     }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void Crouch(float vDirection)
     {
-        //COLLECTABLES
-        if (trigger == false)
+        if (vDirection < 0 && boxColl.IsTouchingLayers(ground) && playerState != State.falling && playerState != State.climbing)
         {
-            if (collision.gameObject.tag == "Collectable")
-            {
-                Cherry cherry = collision.gameObject.GetComponent<Cherry>();
-
-                collect.Play();
-                cherry.Collect();
-                PermanentUI.perm.collectables += 1;
-                PermanentUI.perm.collectablesText.text = PermanentUI.perm.collectables.ToString();
-                trigger = true;
-            }
+            rb.velocity = new Vector2(rb.velocity.x, crouchForce);
+            circleColl.isTrigger = true;
         }
+
+        else if (boxColl.IsTouchingLayers(ground) && circleColl.IsTouchingLayers(ground) && playerState == State.crouching)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, crouchForce);
+            circleColl.isTrigger = true;
+        }
+
         else
         {
-            StartCoroutine(CollectTimer());
-            trigger = false;
-        }
-        //GEM
-        if (collision.gameObject.tag == "Gem2")
-        {
-            Destroy(collision.gameObject);
-            jumpForce = 20;
-            GetComponent<SpriteRenderer>().color = Color.red;
-            StartCoroutine(GemTimer());
-        }
-        //PORTAL
-        if (collision.gameObject.tag=="Portal in")
-        {
-            transform.position = new Vector3(-74.57f, -7.79f, 0);
-
+            circleColl.isTrigger = false;
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.gameObject.tag == "Enemy")
-        {
-            Enemy enemy = other.gameObject.GetComponent<Enemy>();
-
-            if (state == State.falling)
-
-            {
-                enemy.JumpedOn();
-                Jump();
-            }
-            else
-            {
-                state = State.hurt;
-                PermanentUI.perm.health -= 1;
-                PermanentUI.perm.healthCounterText.text = PermanentUI.perm.health.ToString();
-                Death();
-
-                if (other.gameObject.transform.position.x > transform.position.x)
-                {
-                    rb.velocity = new Vector2(-hurtForce, rb.velocity.y);
-
-
-                    // enemy is right to the player, bounce to left
-                }
-                else
-                {
-                    rb.velocity = new Vector2(hurtForce, rb.velocity.y);
-                    // enemy is left to the player, bounce to right
-                }
-            }
-        }
-
-        if (other.gameObject.tag == "Trap")
-        {
-            state = State.hurt;
-            if (other.gameObject.transform.position.x > transform.position.x)
-            {
-                rb.velocity = new Vector2(-hurtForce, rb.velocity.y);
-                // enemy is right to the player, bounce to left
-            }
-            else
-            {
-                rb.velocity = new Vector2(hurtForce, rb.velocity.y);
-                // enemy is left to the player, bounce to right
-            }
-        }
-
-
-    }
-
-    private void Death()
-    {
-        if (PermanentUI.perm.health <= 0)
-        {
-            StartCoroutine(DeathTimer());
-            deathTrigger = true;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
-    }
-
-
-    private IEnumerator GemTimer()
-    {
-        yield return new WaitForSeconds(5);
-        jumpForce = 16;
-        GetComponent<SpriteRenderer>().color = Color.white;
-        
-
-    }
-
-    private IEnumerator CollectTimer()
-    {
-        yield return new WaitForSeconds(.5f);
-    }
-
-    private IEnumerator DeathTimer()
-    {
-        yield return new WaitForSeconds(10f);
-    }
     private void AnimationState()
 
     {
-        if (state == State.jumping)
+        if (Mathf.Abs(rb.velocity.y) > .1f && boxColl.IsTouchingLayers(ladder))
+        {
+            playerState = State.climbing;
+        }
+        else if (playerState == State.jumping)
         {
             if (rb.velocity.y < .1f)
             {
-                state = State.falling;
+                playerState = State.falling;
             }
+
+            //Transition from jumping to falling
+
         }
-        else if (state == State.falling)
+        else if (playerState == State.falling)
         {
             if (boxColl.IsTouchingLayers(ground))
             {
-                state = State.idle;
+                playerState = State.idle;
             }
-            else if (boxColl.IsTouchingLayers(ladder) && Mathf.Abs(rb.velocity.y) > .1f)
-            {
-                state = State.climbing;
-            }
+
         }
 
-        else if (boxColl.IsTouchingLayers(ground)&& rb.velocity.y < -7f)
+        else if (boxColl.IsTouchingLayers(ground) && rb.velocity.y < -7f)
         {
-            state = State.crouching;
+            playerState = State.crouching;
         }
 
-        else if (Mathf.Abs(rb.velocity.y) > .1f && boxColl.IsTouchingLayers(ladder))
-        {
-            state = State.climbing;
 
-        }
-
-        else if (state == State.hurt)
+        else if (playerState == State.hurt)
         {
             if (Mathf.Abs(rb.velocity.x) < .1f)
             {
-                state = State.idle;
+                playerState = State.idle;
             }
         }
 
@@ -321,13 +208,93 @@ public class PlayerController : MonoBehaviour
         else if (Mathf.Abs(rb.velocity.x) > 2f)
 
         {
-            state = State.running;
+            playerState = State.running;
+
+            if (rb.velocity.y < -6)
+            {
+
+                playerState = State.falling;
+            }
+
+            //Falling from a high place
         }
 
+        else if (playerState == State.idle)
+        {
+            if (rb.velocity.y < -6)
+            {
+
+                playerState = State.falling;
+            }
+
+            //Falling from a high place
+
+        }
         else
         {
-            state = State.idle;
+            playerState = State.idle;
         }
+    }
+
+    //Public Functions
+    public void playerHurt()
+    {
+        playerState = State.hurt;
+        PermanentUI.perm.health -= 1;
+        PermanentUI.perm.healthCounterText.text = PermanentUI.perm.health.ToString();
+
+    }
+
+    public void Hit()
+    {
+        hit.Play();
+    }
+
+    public void Death()
+    {
+        if (PermanentUI.perm.health <= 0)
+        {
+            SceneManager.LoadScene(4);
+            StartCoroutine(DeathTimer());
+            deathTrigger = true;
+            /*
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+            */
+            PermanentUI.perm.Reset();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Cherry cherry = collision.gameObject.GetComponent<Cherry>();
+
+        if (collision.gameObject.tag == "Gem")
+        {
+            Destroy(collision.gameObject);
+            GetComponent<SpriteRenderer>().color = Color.blue;
+            invincibleTrigger = true;
+            speed = 10f;
+            StartCoroutine("GemTimer");
+        }
+
+
+
+    }
+
+    private IEnumerator GemTimer()
+    {
+        yield return new WaitForSeconds(5);
+        invincibleTrigger = false;
+        speed = 5f;
+        GetComponent<SpriteRenderer>().color = Color.white;
+        
+
+    }
+
+    private IEnumerator DeathTimer()
+    {
+        yield return new WaitForSeconds(10f);
     }
 
     //Audio
@@ -337,14 +304,12 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    //Animation Events
 
 
-
+    
 
 
 }
-
 
 
 

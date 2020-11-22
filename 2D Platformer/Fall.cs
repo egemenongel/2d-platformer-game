@@ -9,9 +9,15 @@ public class Fall : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            PermanentUI.perm.Reset();
+            PlayerController player = GetComponent<PlayerController>(); 
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            
+            PermanentUI.perm.Reset();
+
+            if(PermanentUI.perm.health == 0)
+            {
+                SceneManager.LoadScene(4);
+            }
+
         }
     }
 }

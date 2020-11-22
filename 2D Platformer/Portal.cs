@@ -17,15 +17,20 @@ public class Portal : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();          
     }
 
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.tag == "Player")
         {
+            PlayerController player = collision.gameObject.GetComponent<PlayerController>();
+
             playerRb.transform.position = teleportLocation;
+            player.rb.velocity = new Vector2(player.rb.position.x, player.rb.position.y);
 
         }
     }
+
+
+
 }
 
 
