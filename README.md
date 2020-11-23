@@ -18,7 +18,9 @@
 - Traps
 - More animations
 - More background elements
+- Theme for the game. Reasons.
 - Story
+
 
 // Current Bugs //
 
