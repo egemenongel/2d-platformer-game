@@ -8,7 +8,7 @@
 - ~~Menu - UI~~ ✓
 - Level Select Menu
 - Score
-- Health
+- ~~Health~~
 - Death Music
 - ~~When falling from a high place, change to the falling state.~~
 - 3 Star System
