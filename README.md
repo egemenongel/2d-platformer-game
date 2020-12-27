@@ -24,14 +24,17 @@
 - Theme for the game. Reasons.
 - Story
 
-**2D Portal Alike Game**:
-
 // Current Bugs //
-
 - ~~Health decreases 2 times sometimes.~~
 - ~~Collider of cherries, count more than once sometimes. REASON: There are actually 2 colliders on the player.~~ SOLVED
 - Cannot figure out how to access another object to create a IEnumerator.
 - Audio of the hit is not working on other scenes when character hits the trap.
+
+
+**2D Portal Alike Game**:
+- Succesfully working Portal.
+
+
 
 
 Planning to create a Portal alike 3D or 2D game. It can be interesting to create mechanics about bullets.
