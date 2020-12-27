@@ -24,7 +24,7 @@
 - Theme for the game. Reasons.
 - Story
 
-** 2D Portal Alike Game**:
+**2D Portal Alike Game**:
 
 // Current Bugs //
 
