@@ -31,7 +31,7 @@
 - [ ] 3 Star System
 - [ ] Moving Platform with a trap
 - [ ] Hidden Room
-- [ ] Powerups (Star in Mario, weapons from Mega Man)
+- [ ] Powerups
 - [ ] Maybe vehicles
 - [ ] Bosses
 - [ ] Smarter Enemies
