@@ -41,13 +41,14 @@
 - [ ] Theme for the game
 - [ ] Story
 
-#### Bugs
+<!---
+ #### Bugs
 
 - [x] Health decreases 2 times sometimes. 
 - [x] Collider of cherries, count more than once sometimes. REASON: There are actually 2 colliders on the player. 
 - [ ] Cannot figure out how to access another object to create a IEnumerator.
 - [ ] Audio of the hit is not working on other scenes when character hits the trap.
-
+-->
 ## Credits
 
 All sprites are created by Ansimuz.
