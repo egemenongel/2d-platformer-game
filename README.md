@@ -25,8 +25,8 @@
 - [X] ~~Health~~
 - [X] ~~Death Music~~
 - [X] ~~When falling from a high place, change to the falling state.~~
-- [X] Level Select Menu
-- [X] Score
+- [X] ~~Level Select Menuü~~~
+- [X] ~~Score~~
 - [ ] Cleaning the code
 - [ ] 3 Star System
 - [ ] Moving Platform with a trap
